@@ -34,7 +34,7 @@ const createBlog = async function (req, res) {
 
     if (!mongoose.isValidObjectId(data.authorId))
       return res.status(400).send({ status: false, msg: 'Please enter correct length of AuthorId Id' })
-    
+
     let authId = await authorModel.findById(authorId)
 
     if (!authId) { return res.status(400).send({ status: false, msg: "AuthorId doesn't exist." }) }
@@ -90,7 +90,7 @@ const getBlogs = async function (req, res) {
 
 
     if (authorId) {
-      
+
       if (!mongoose.isValidObjectId(authorId))
         return res.status(400).send({ status: false, msg: 'Please enter correct length of AuthorId Id' })
     }
@@ -136,19 +136,19 @@ const updateBlogId = async function (req, res) {
     }
 
     if (Object.keys(data).length == 0) {
-      res.status(400).send({ status: false, msg: "Data must be provided for update" })
+      return res.status(400).send({ status: false, msg: "Data must be provided for update" })
     }
     if (!ObjectId.isValid(blogId)) { return res.status(400).send({ status: false, msg: 'Please enter correct length of blog Id' }) }
 
     let blog_Id = await blogModel.findById(blogId)
 
     if (!blog_Id) {
-      res.status(400).send({ status: false, msg: " blog Id not found" })
+      return res.status(400).send({ status: false, msg: " blog Id not found" })
     }
     let findBlog = await blogModel.findOne({ _id: blogId, isDeleted: false })
 
     if (!findBlog) {
-      res.status(404).send({ status: false, msg: "No such Document" })
+      return res.status(404).send({ status: false, msg: "No such Document" })
     }
 
     ////////////////////------------------------------authorization-----------------------------------------------------------
@@ -157,10 +157,10 @@ const updateBlogId = async function (req, res) {
     if (!token) res.status(401).send({ status: false, msg: "missing a mandatory token😒" })
     let decodedToken = jwt.verify(token, "FunctionUp-radon")
 
-    let blog = req.params.blogId
+    // let blog = req.params.blogId
     let userId = decodedToken.UserId
 
-    let blogData = await blogModel.findOne({ _id: blog })
+    let blogData = await blogModel.findOne({ _id: blogId })
 
     if (blogData.authorId.toString() != userId) {
       return res.status(403).send({ status: false, msg: 'You are not authrized' })
@@ -198,7 +198,7 @@ const deleteByBlogId = async function (req, res) {
 
     let BlogId = await blogModel.findById(data)
     if (!BlogId) {
-      res.status(404).send({ msg: "Please enter valid blogId" })
+      return res.status(404).send({ msg: "Please enter valid blogId" })
     }
 
     ////////////////////------------------------------authorization-------------------------------------------------------------
@@ -249,7 +249,7 @@ const deleteBlogbyquery = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Please select some key for deletion." })
     if (data.category) {
       if (!isValid(data.category)) {
-        res.status(400).send({ status: false, msg: "Invalid Category " })
+        return res.status(400).send({ status: false, msg: "Invalid Category " })
       }
     }
     if (data.title) {
@@ -283,7 +283,7 @@ const deleteBlogbyquery = async function (req, res) {
 
     res.status(200).send({ status: true, msg: `Total deleted document count:${blogs.modifiedCount}`, data: blogs })
 
-    console.log(blogs)
+    // console.log(blogs)
 
 
   }

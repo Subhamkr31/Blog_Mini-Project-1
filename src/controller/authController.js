@@ -42,7 +42,7 @@ const createAuthor = async function (req, res) {
 
         let validEmail = await authorModel.findOne({ email: emailGet })
        
-        if (validEmail) return res.status(400).send({ status: false, msg: `${email} Already email exist ` })
+        if (validEmail) return res.status(400).send({ status: false, msg: ` Already email exist ` })
 
         if (!isValid(data.pasword)) { return res.status(400).send({ status: false, msg: "password is mandatory" }) }
 
@@ -55,7 +55,7 @@ const createAuthor = async function (req, res) {
         res.status(201).send({ status: true, data: created })
     }
     catch (err) {
-        console.log(err.message)
+        // console.log(err.message)
         res.status(500).send({ status: false, msg: err.message })
     }
 

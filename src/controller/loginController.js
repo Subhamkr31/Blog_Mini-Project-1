@@ -22,18 +22,18 @@ const authorLogin = async function (req, res) {
         let password = data.pasword;
 
         if (!data) {
-            res.status(400).send({ status: false, msg: "There is no data In body to find Author" })
+            return res.status(400).send({ status: false, msg: "There is no data In body to find Author" })
         }
 
         if (!isValid(emails)) {
-            res.status(400).send({ status: false, msg: "Please enter your Email " })
+           return res.status(400).send({ status: false, msg: "Please enter your Email " })
         }
 
         if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(data.email.trim()))) 
         { return res.status(400).send({ status: false, msg: "Enter a valid email address." }) }
 
         if (!isValid(password)) {
-            res.status(400).send({ status: false, msg: "Please enter your password " })
+           return res.status(400).send({ status: false, msg: "Please enter your password " })
         }
 
         let login = await authorModel.findOne({ email: emails, pasword: password })//here we call authorModel db and save the data in login  VARIABLE
