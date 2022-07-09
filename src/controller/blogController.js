@@ -157,7 +157,6 @@ const updateBlogId = async function (req, res) {
     if (!token) res.status(401).send({ status: false, msg: "missing a mandatory token😒" })
     let decodedToken = jwt.verify(token, "FunctionUp-radon")
 
-    // let blog = req.params.blogId
     let userId = decodedToken.UserId
 
     let blogData = await blogModel.findOne({ _id: blogId })
@@ -191,7 +190,7 @@ const updateBlogId = async function (req, res) {
 const deleteByBlogId = async function (req, res) {
   try {
     let data = req.params.blogId
-    // let Id = data.blogId
+    
     if (!data) { return res.status(400).send({ status: false, msg: "BlogId !~ must be provided " }) }
 
     if (!ObjectId.isValid(data)) { return res.status(400).send({ status: false, msg: 'Please enter correct length of blog Id' }) }
@@ -207,13 +206,13 @@ const deleteByBlogId = async function (req, res) {
     if (!token) res.status(401).send({ status: false, msg: "missing a mandatory token😒" })
     let decodedToken = jwt.verify(token, "FunctionUp-radon")
 
-    let blog = req.params.blogId
+    // let blog = req.params.blogId
     let userId = decodedToken.UserId
 
-    let blogData = await blogModel.findOne({ _id: blog })
+    let blogData = await blogModel.findOne({ _id: data })
 
     if (blogData.authorId.toString() != userId) {
-      return res.status(200).send({ status: true, msg: 'You are not authrized' })
+      return res.status(403).send({ status: true, msg: 'You are not authrized' })
     }
 
 
@@ -243,23 +242,44 @@ const deleteByBlogId = async function (req, res) {
 const deleteBlogbyquery = async function (req, res) {
   try {
     let data = req.query
-
-
+    // console.log(data)
     if (!Object.keys(data).length)
       return res.status(400).send({ status: false, msg: "Please select some key for deletion." })
+
     if (data.category) {
+
       if (!isValid(data.category)) {
         return res.status(400).send({ status: false, msg: "Invalid Category " })
       }
     }
-    if (data.title) {
-      if (!isValid(data.title)) {
-        res.status(400).send({ status: false, msg: "Invalid title " })
+
+    if (data.subcategory) {
+      if (!isValid(data.subcategory)) {
+        return res.status(400).send({ status: false, msg: "Invalid subcategory" })
+      }
+    }
+
+    if (data.tags) {
+      if (!isValid(data.tags)) {
+        return res.status(400).send({ status: false, msg: "Invalid tags" })
+      }
+    }
+    if (data.category) {
+      let verifyCategory = await blogModel.findOne({ category: data.category })
+      if (!verifyCategory) {
+        return res.status(400).send({ status: false, msg: 'No blogs in this category exist' })
+      }
+    }
+    if (data.tags) {
+      let verifyTag = await blogModel.findOne({ tags: data.tags })
+      if (!verifyTag) {
+        return res.status(400).send({ status: false, msg: 'No blogs in this tags exist' })
       }
     }
     if (data.subcategory) {
-      if (!isValid(data.subcategory)) {
-        res.status(400).send({ status: false, msg: "Invalid subcategory" })
+      let verifyCategory = await blogModel.findOne({ subcategory: data.subcategory })
+      if (!verifyCategory) {
+        return res.status(400).send({ status: false, msg: 'No blogs in this subcategory exist' })
       }
     }
 
@@ -274,16 +294,12 @@ const deleteBlogbyquery = async function (req, res) {
       if (!authId) { return res.status(400).send({ status: false, msg: "AuthorId doesn't exist." }) }
     }
 
-
-
     let blogs = await blogModel.updateMany({ data, isDeleted: false, isPublished: false }, { isDeleted: true, deletedAt: Date.now() }, { new: true })
 
     if (!blogs.modifiedCount)
       return res.status(404).send({ status: false, msg: "No documents Found" })
 
     res.status(200).send({ status: true, msg: `Total deleted document count:${blogs.modifiedCount}`, data: blogs })
-
-    // console.log(blogs)
 
 
   }

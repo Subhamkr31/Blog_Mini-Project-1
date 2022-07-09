@@ -50,7 +50,7 @@ const authorLogin = async function (req, res) {
             },
             "FunctionUp-radon" //this is SECRET KEY
         )
-
+        res.setHeader("x-api-key" , token )
         res.status(200).send({ status: true, token: token })
     } catch (err) {
         res.status(500).send({ msg: err.message })
